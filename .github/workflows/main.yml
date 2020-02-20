@@ -14,5 +14,4 @@ jobs:
       - name: Test Step
         uses: ./ # Uses an action in the root directory
         with:
-          workflow_id: 479426
-          access_token: ${{ secrets.GH_ACCESS_TOKEN }}
+          access_token: ${{ secrets.GITHUB_TOKEN }}

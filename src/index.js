@@ -2,7 +2,7 @@ const core = require('@actions/core');
 const github = require('@actions/github');
 
 async function main() {
-  const { sha, ref, repo: { owner, repo }, payload } = github.context;
+  const { sha, ref, repo: { owner, repo }, payload, run_id } = github.context;
   
   let branch = ref.slice(11);
   let headSha = sha;

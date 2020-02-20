@@ -8264,7 +8264,7 @@ const core = __webpack_require__(470);
 const github = __webpack_require__(469);
 
 async function main() {
-  const { sha, ref, repo: { owner, repo }, payload } = github.context;
+  const { sha, ref, repo: { owner, repo }, payload, run_id } = github.context;
   
   let branch = ref.slice(11);
   let headSha = sha;
