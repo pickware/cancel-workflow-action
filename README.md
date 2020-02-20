@@ -14,31 +14,24 @@ Read more about the [Workflow Runs API](https://developer.github.com/v3/actions/
 
 - Visit https://github.com/settings/tokens to generate a token with `public_repo` scope (or full `repo` scope for private repos).
 - Visit `https://github.com/:org/:repo/settings/secrets` to add a secret called `GH_ACCESS_TOKEN` with the token as the value.
-- Visit `https://api.github.com/repos/:org/:repo/actions/workflows` to find the Workflow ID you wish to auto-cancel.
 - Add a new file `.github/workflows/cancel.yml` with the following:
 
-
 ```yml
-name: Cancel
+name: Runs Cancellation
+
 on: [push]
+
 jobs:
   cancel:
-    name: 'Cancel Previous Runs'
     runs-on: ubuntu-latest
+    name: Cancel Jobs
     timeout-minutes: 3
     steps:
-      - uses: styfle/cancel-workflow-action@0.2.0
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Cancel Runs
+        uses: pickware/cancel-workflow-action@paulvonallwoerden/make-workflow-id-dynamic
         with:
-          workflow_id: 479426
-          access_token: ${{ secrets.GH_ACCESS_TOKEN }}
+          access_token: ${{ secrets.GITHUB_TOKEN }}
+
 ```
-
-At the time of writing `0.2.0` is the latest release but you can select any [release](https://github.com/styfle/cancel-workflow-action/releases).
-
-## Contributing
-
-- Clone this repo
-- Run `yarn install`
-- Edit `./src/index.js`
-- Run `yarn build`
-- Commit changes including `./index.js` bundle
