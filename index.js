@@ -8264,8 +8264,16 @@ const core = __webpack_require__(470);
 const github = __webpack_require__(469);
 
 async function main() {
-  const { sha, ref, repo: { owner, repo }, payload, run_id } = github.context;
+  const { sha, ref, repo: { owner, repo }, payload, workflow, actor, action } = github.context;
   
+console.log("Workflow is " + workflow);
+console.log("actor is " + actor);
+console.log("action is " + action);
+
+return ;
+
+  const run_id = process.env.GITHUB_RUN_ID;
+
   let branch = ref.slice(11);
   let headSha = sha;
 
