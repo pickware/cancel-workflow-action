@@ -2,7 +2,10 @@ const core = require('@actions/core');
 const github = require('@actions/github');
 
 async function main() {
-  const { sha, ref, repo: { owner, repo }, payload } = github.context;
+  const { sha, ref, repo: { owner, repo }, payload, workflow } = github.context;
+  
+  console.log(workflow)
+
   const run_id = process.env.GITHUB_RUN_ID;
 
   let branch = ref.slice(11);
