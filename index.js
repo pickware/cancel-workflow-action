@@ -8265,11 +8265,6 @@ const github = __webpack_require__(469);
 
 async function main() {
   const { sha, ref, repo: { owner, repo }, payload } = github.context;
-  
-console.log("run_id is " + process.env.GITHUB_RUN_ID);
-
-return ;
-
   const run_id = process.env.GITHUB_RUN_ID;
 
   let branch = ref.slice(11);
