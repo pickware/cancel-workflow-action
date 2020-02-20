@@ -2,9 +2,13 @@ const core = require('@actions/core');
 const github = require('@actions/github');
 
 async function main() {
-  const { sha, ref, repo: { owner, repo }, payload, workflow } = github.context;
+  const { sha, ref, repo: { owner, repo }, payload, workflow,actor,action } = github.context;
   
-  core.info(JSON.stringify(workflow))
+console.log("Workflow is " + workflow);
+console.log("actor is " + actor);
+console.log("action is " + action);
+
+return ;
 
   const run_id = process.env.GITHUB_RUN_ID;
 
