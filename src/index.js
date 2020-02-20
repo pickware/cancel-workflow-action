@@ -2,11 +2,9 @@ const core = require('@actions/core');
 const github = require('@actions/github');
 
 async function main() {
-  const { sha, ref, repo: { owner, repo }, payload, workflow, actor, action } = github.context;
+  const { sha, ref, repo: { owner, repo }, payload } = github.context;
   
-console.log("Workflow is " + workflow);
-console.log("actor is " + actor);
-console.log("action is " + action);
+console.log("run_id is " + github.context.run_id);
 
 return ;
 
