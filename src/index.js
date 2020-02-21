@@ -29,7 +29,7 @@ async function main() {
   const { data: currentWorkflowRun } = await octokit.actions.getWorkflowRun({
     owner,
     repo,
-    runId,
+    run_id: runId,
   });
   const workflowUrlParts = currentWorkflowRun.workflow_url.split('/');
   const workflowId = workflowUrlParts[workflowUrlParts.length - 1];
