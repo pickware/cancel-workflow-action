@@ -38,7 +38,7 @@ async function main() {
   const { data: allWorkflowRuns } = await octokit.actions.listWorkflowRuns({
     owner,
     repo,
-    workflowId,
+    workflow_id: workflowId,
     branch,
   });
 
