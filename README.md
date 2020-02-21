@@ -30,8 +30,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Cancel Runs
-        uses: pickware/cancel-workflow-action@paulvonallwoerden/make-workflow-id-dynamic
+        uses: pickware/cancel-workflow-action
         with:
-          access_token: ${{ secrets.GITHUB_TOKEN }}
+          accessToken: ${{ secrets.GITHUB_TOKEN }}
 
 ```

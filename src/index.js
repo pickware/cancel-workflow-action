@@ -1,16 +1,16 @@
-const core = require("@actions/core");
-const github = require("@actions/github");
+const core = require('@actions/core');
+const github = require('@actions/github');
 
 async function main() {
   const {
     sha,
     ref,
     repo: { owner, repo },
-    payload
+    payload,
   } = github.context;
 
   // GITHUB_RUN_ID is provided by Github
-  const run_id = process.env.GITHUB_RUN_ID;
+  const runId = process.env.GITHUB_RUN_ID;
 
   let branch = ref.slice(11);
   let headSha = sha;
@@ -20,54 +20,51 @@ async function main() {
     headSha = payload.pull_request.head.sha;
   }
 
-  const token = core.getInput("access_token", { required: true });
+  const token = core.getInput('accessToken', { required: true });
 
   const octokit = new github.GitHub(token);
 
   // Obtain workflow id from url
   // Example url: https://api.github.com/repos/octo-org/octo-repo/actions/workflows/30433642
-  const {
-    data: { workflow_url }
-  } = await octokit.actions.getWorkflowRun({ owner, repo, run_id });
-  
-  const workflow_id = workflow_url.substring(
-    workflow_url.lastIndexOf("/workflows/") + 11,
-    Number.POSITIVE_INFINITY
-  );
-
-  // Obtain workflow runs
-  const { data: runs } = await octokit.actions.listWorkflowRuns({
+  const { data: currentWorkflowRun } = await octokit.actions.getWorkflowRun({
     owner,
     repo,
-    workflow_id,
-    branch
+    runId,
+  });
+  const workflowUrlParts = currentWorkflowRun.workflow_url.split('/');
+  const workflowId = workflowUrlParts[workflowUrlParts.length - 1];
+
+  // Obtain workflow runs
+  const { data: allWorkflowRuns } = await octokit.actions.listWorkflowRuns({
+    owner,
+    repo,
+    workflowId,
+    branch,
   });
 
-  core.info(`Found ${runs.total_count} runs total.`);
+  core.info(`Found ${allWorkflowRuns.total_count} runs total.`);
 
   // Filter workflow runs
-  const runningWorkflows = runs.workflow_runs.filter(
-    workflow => workflow.head_sha !== headSha && workflow.status !== "completed"
+  const runningWorkflows = allWorkflowRuns.workflow_runs.filter(
+    workflowRun => workflowRun.head_sha !== headSha && workflowRun.status !== 'completed'
   );
 
   core.info(`Found ${runningWorkflows.length} runs in progress.`);
 
-  // Cancel workflow runs
-  for (const { id, head_sha, status } of runningWorkflows) {
-    core.info(
-      "Cancelling another run: " + JSON.stringify({ id, head_sha, status })
-    );
-    const res = await octokit.actions.cancelWorkflowRun({
+  // Cancel previous workflow runs
+  for (const { id, head_sha: headSha, status } of runningWorkflows) {
+    core.info('Cancelling another run: ' + JSON.stringify({ id, headSha, status }));
+    const result = await octokit.actions.cancelWorkflowRun({
       owner,
       repo,
-      run_id: id
+      run_id: id,
     });
-    core.info(`Status ${res.status}`);
+    core.info(`Run status changed to ${result.status}`);
   }
 
-  core.info("Done.");
+  core.info('Done.');
 }
 
 main()
-  .then(() => core.info("Cancel Complete."))
+  .then(() => core.info('Cancel Complete.'))
   .catch(e => core.setFailed(e.message));
