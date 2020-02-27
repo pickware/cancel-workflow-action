@@ -2,32 +2,67 @@ const core = require('@actions/core');
 const github = require('@actions/github');
 
 async function main() {
-  const { eventName, sha, ref, repo: { owner, repo }, payload } = github.context;
+  const {
+    sha,
+    ref,
+    repo: { owner, repo },
+    payload,
+  } = github.context;
+
+  // GITHUB_RUN_ID is provided by Github
+  const runId = process.env.GITHUB_RUN_ID;
+
   let branch = ref.slice(11);
   let headSha = sha;
+
   if (payload.pull_request) {
     branch = payload.pull_request.head.ref;
     headSha = payload.pull_request.head.sha;
   }
 
-  console.log({ eventName, sha, headSha, branch, owner, repo });
-  const workflow_id = core.getInput('workflow_id', { required: true });
-  const token = core.getInput('access_token', { required: true });
-  console.log(`Found input: ${workflow_id}`);
-  console.log(`Found token: ${token ? 'yes' : 'no'}`);
+  const token = core.getInput('accessToken', { required: true });
+
   const octokit = new github.GitHub(token);
-  const { data } = await octokit.actions.listWorkflowRuns({ owner, repo, workflow_id, branch });
-  console.log(`Found ${data.total_count} runs total.`);
-  const runningWorkflows = data.workflow_runs.filter(
-    workflow => workflow.head_sha !== headSha && workflow.status !== 'completed'
+
+  // Obtain workflow id from url
+  // Example url: https://api.github.com/repos/octo-org/octo-repo/actions/workflows/30433642
+  const { data: currentWorkflowRun } = await octokit.actions.getWorkflowRun({
+    owner,
+    repo,
+    run_id: runId,
+  });
+  const workflowUrlParts = currentWorkflowRun.workflow_url.split('/');
+  const workflowId = workflowUrlParts[workflowUrlParts.length - 1];
+
+  // Obtain workflow runs
+  const { data: allWorkflowRuns } = await octokit.actions.listWorkflowRuns({
+    owner,
+    repo,
+    workflow_id: workflowId,
+    branch,
+  });
+
+  core.info(`Found ${allWorkflowRuns.total_count} runs total.`);
+
+  // Filter workflow runs
+  const activeWorkflowRuns = allWorkflowRuns.workflow_runs.filter(
+    workflowRun => workflowRun.head_sha !== headSha && workflowRun.status !== 'completed'
   );
-  console.log(`Found ${runningWorkflows.length} runs in progress.`);
-  for (const { id, head_sha, status } of runningWorkflows) {
-    console.log('Cancelling another run: ', { id, head_sha, status });
-    const res = await octokit.actions.cancelWorkflowRun({ owner, repo, run_id: id });
-    console.log(`Status ${res.status}`);
+
+  core.info(`Found ${activeWorkflowRuns.length} runs in progress.`);
+
+  // Cancel previous workflow runs
+  for (const { id, head_sha: headSha, status } of activeWorkflowRuns) {
+    core.info('Cancelling another run: ' + JSON.stringify({ id, headSha, status }));
+    const result = await octokit.actions.cancelWorkflowRun({
+      owner,
+      repo,
+      run_id: id,
+    });
+    core.info(`Run status changed to ${result.status}`);
   }
-  console.log('Done.');
+
+  core.info('Done.');
 }
 
 main()

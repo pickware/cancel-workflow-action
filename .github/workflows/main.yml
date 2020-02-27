@@ -5,14 +5,15 @@ on: [push]
 jobs:
   cancel:
     runs-on: ubuntu-latest
-    name: Cancel
+    name: Main
     timeout-minutes: 3
     steps:
       # To use this repository's private action, you must check out the repository
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Test Step
+      - name: Cancel previous runs
         uses: ./ # Uses an action in the root directory
         with:
-          workflow_id: 479426
-          access_token: ${{ secrets.GH_ACCESS_TOKEN }}
+          accessToken: ${{ secrets.GITHUB_TOKEN }}
+      - name: Sleep for 120 seconds
+        run: echo 'Sleeping...'; sleep 120; echo 'Done.';

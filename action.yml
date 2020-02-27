@@ -1,9 +1,6 @@
 name: 'Cancel workflow action'
 description: 'Cancel previous workflows'
 inputs:
-  workflow_id:
-    description: 'The id of your workflow'
-    required: true
   access_token:
     description: 'Your github access token, ie: secrets.GITHUB_TOKEN'
     required: true
