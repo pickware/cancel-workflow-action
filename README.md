@@ -20,6 +20,8 @@ Add the following step to a workflow whose runs should be automatically cancelle
     access_token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
+This should probably the first step in your workflow to ensure cancellation as early as possible.
+
 At the time of writing `0.2.0` is the latest release but you can select any [release](https://github.com/styfle/cancel-workflow-action/releases).
 
 ## Contributing
