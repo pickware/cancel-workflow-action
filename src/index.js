@@ -45,14 +45,14 @@ async function main() {
   core.info(`Found ${allWorkflowRuns.total_count} runs total.`);
 
   // Filter workflow runs
-  const runningWorkflows = allWorkflowRuns.workflow_runs.filter(
+  const activeWorkflowRuns = allWorkflowRuns.workflow_runs.filter(
     workflowRun => workflowRun.head_sha !== headSha && workflowRun.status !== 'completed'
   );
 
-  core.info(`Found ${runningWorkflows.length} runs in progress.`);
+  core.info(`Found ${activeWorkflowRuns.length} runs in progress.`);
 
   // Cancel previous workflow runs
-  for (const { id, head_sha: headSha, status } of runningWorkflows) {
+  for (const { id, head_sha: headSha, status } of activeWorkflowRuns) {
     core.info('Cancelling another run: ' + JSON.stringify({ id, headSha, status }));
     const result = await octokit.actions.cancelWorkflowRun({
       owner,
