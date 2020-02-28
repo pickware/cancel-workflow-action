@@ -20,7 +20,7 @@ async function main() {
     headSha = payload.pull_request.head.sha;
   }
 
-  const token = core.getInput('accessToken', { required: true });
+  const token = core.getInput('access_token', { required: true });
 
   const octokit = new github.GitHub(token);
 
